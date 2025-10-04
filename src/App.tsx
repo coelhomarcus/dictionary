@@ -8,6 +8,8 @@ import NotFoundScreen from './components/NotFoundScreen'
 
 import { FaPlay } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
+import { RiBook2Fill } from "react-icons/ri";
+
 
 const App = () => {
    const [data, setData] = useState<DictionaryResponse | null>(null);
@@ -15,6 +17,7 @@ const App = () => {
    const [inputValue, setInputValue] = useState<string>('');
    const [isLoading, setIsLoading] = useState<boolean>(true);
    const [isError, setIsError] = useState<boolean>(false);
+   const [isEmptyInput, setIsEmptyInput] = useState<boolean>(false);
    const audioRef = useRef<HTMLAudioElement>(null);
 
    const fetchData = async (word: string) => {
@@ -42,6 +45,16 @@ const App = () => {
       e.preventDefault();
       if (inputValue.trim()) {
          setSearchWord(inputValue.trim());
+         setIsEmptyInput(false);
+      } else {
+         setIsEmptyInput(true);
+      }
+   };
+
+   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value);
+      if (e.target.value.trim()) {
+         setIsEmptyInput(false);
       }
    };
 
@@ -62,19 +75,31 @@ const App = () => {
    return (
       <div className='mt-6 max-w-[800px] flex flex-col mx-5 md:mx-auto'>
          <header className='flex mb-6 justify-center items-center'>
-            <h1 className='text-2xl font-black flex gap-2 items-center'>Dictionary</h1>
+            <h1 className='text-4xl font-black text-purple-500'><RiBook2Fill /></h1>
          </header>
 
-         <form onSubmit={handleSearch} className="mb-6 flex gap-2">
-            <input
-               type="text"
-               value={inputValue}
-               onChange={(e) => setInputValue(e.target.value)}
-               placeholder="Type a word..."
-               className="w-full px-4 py-2 text-lg rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <button onSubmit={handleSearch} className='bg-purple-500 hover:bg-purple-600 hover:text-neutral-50 active:bg-purple-500 px-3
-            rounded-full text-white italic font-medium cursor-pointer'><IoSearch className='size-5' /></button>
+         <form onSubmit={handleSearch} className="mb-4">
+            <div className="relative">
+               <input
+                  type="text"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  placeholder="Type a word..."
+                  className={`w-full px-4 py-4 pr-12 text-lg italic font-semibold rounded-xl bg-neutral-100 border-2 focus:outline-none transition-colors ${isEmptyInput
+                     ? 'border-red-500 focus:border-red-500 hover:border-red-500'
+                     : 'border-neutral-200/50 focus:border-purple-500 hover:border-purple-500'
+                     }`}
+               />
+               <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-purple-500 px-3 font-medium cursor-pointer"
+               >
+                  <IoSearch className='size-5' />
+               </button>
+            </div>
+            {isEmptyInput && (
+               <p className="text-red-500 text-sm mt-1 ml-2">Type a word to search</p>
+            )}
          </form>
 
          {isLoading && <LoadingScreen />}
@@ -91,7 +116,7 @@ const App = () => {
                            <audio ref={audioRef} src={data[0].phonetics[0].audio} preload="auto"></audio>
                            <button
                               onClick={playAudio}
-                              className='size-7.5 mt-2 bg-purple-500 hover:bg-purple-600 text-white rounded-full cursor-pointer transition-colors flex items-center justify-center'
+                              className='size-7.5 mt-2 sm:mt-3.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full cursor-pointer transition-colors flex items-center justify-center'
                            ><FaPlay className='size-4' /></button>
                         </>
                      )}
